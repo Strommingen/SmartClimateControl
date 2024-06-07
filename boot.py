@@ -45,3 +45,5 @@ try:
     http_get()
 except(Exception, KeyboardInterrupt) as err:
     print("No Internet", err)
+
+print('hello')
