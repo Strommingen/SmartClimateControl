@@ -7,7 +7,6 @@ from discord_webhook import DiscordWebhook
 from machine import Pin
 import keys
 import time
-from datetime import datetime, timedelta
 
 pinOutside = Pin(15)
 pinInside = Pin(17)
@@ -20,8 +19,9 @@ myWindow = Window(switchPin)
 openMessage = "Open your window!"
 closeMessage = "Close your window!"
 webhook = DiscordWebhook(url=keys.WEBHOOK)
-lastSent = datetime(0,0,0)
-notifyPeriod = timedelta(0:45:0)
+
+# This will become the time stamp of the last sent notice
+lastSent_seconds = 0
 
 while True:
 
@@ -31,18 +31,21 @@ while True:
     humOut = dhtOutside.getHumidity()
     humIn = dhtInside.getHumidity()
     
-    date = datetime.now()
+    # Current time
+    date = time.localtime() # get the current date as a tuple
+    date_seconds = time.localtime(date)# convert the tuple to seconds since last epoch
 # check if window should be open
     if (myWindow.TempCompare(tempOut, tempIn) or myWindow.HumidityCompare(humOut, humIn)):
         # if window should be open but is not, notify
-        nextNotice = date + timedelta(minutes=45)
+        nextNotice = date_seconds + 2700 # number "2700" is 45 minutes in seconds. 45*60=2700
         if not myWindow.IsOpen() and (lastSent > nextNotice):
             webhook.content = openMessage
             webhook.execute()
-            lastSent = datetime.now()
-    else:
-        if (myWindow.IsOpen()) and (lastSent > nextNotice):
-            webhook.content = closeMessage
-            webhook.execute()
-            lastSent = datetime.now()
+            lastSent = time.localtime() 
+            lastSent_seconds = time.mktime(lastSent) 
+    elif (myWindow.IsOpen()) and (lastSent > nextNotice):
+        webhook.content = closeMessage
+        webhook.execute()
+        lastSent = time.localtime()
+        lastSent_seconds = time.localtime(lastSent)
     time.sleep(0.2)
