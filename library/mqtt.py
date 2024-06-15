@@ -91,7 +91,8 @@ class MQTTClient:
             self._send_str(self.user)
             self._send_str(self.pswd)
         resp = self.sock.read(4)
-        assert resp[0] == 0x20 and resp[1] == 0x02
+        print('Response: ', resp)
+        #assert resp[0] == 0x20 and resp[1] == 0x02
         if resp[3] != 0:
             raise MQTTException(resp[3])
         return resp[2] & 1

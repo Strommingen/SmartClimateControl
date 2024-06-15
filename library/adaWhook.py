@@ -7,20 +7,20 @@ def sub_cb(topic, msg) -> None:          # sub_cb means "callback subroutine"
     # if msg == b"ON":             # If message says "ON" ...
     #     led.on()                 # ... then LED on
     # elif msg == b"OFF":          # If message says "OFF" ...
-    #     led.off()                # ... then LED off
+    #     led.off()                # ... .t.hen. LED off
     # else:                        # If any other message is received ...
     print("Unknown message") # ... do nothing but output that it happened.
 
-class AdaWebhook:
+class AdaConnection:
 
     def __init__(self, topic, client) -> None:
         self._topic = topic
         self._client = client
-        self.RANDOMS_INTERVAL = 60000    # milliseconds
+        self.RANDOMS_INTERVAL = 70000    # milliseconds
         self.last_random_sent_ticks = 0  # milliseconds
 
 
-    def publish(self, data, isNotified) -> None:
+    def publish(self, data, isNotified = False) -> None:
         if(((time.ticks_ms() - self.last_random_sent_ticks) < self.RANDOMS_INTERVAL) and not
         isNotified):
             return
