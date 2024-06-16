@@ -1,5 +1,4 @@
-import ubinascii, time
-import library.mqtt
+import time
 
 # Callback Function to respond to messages from Adafruit IO
 def sub_cb(topic, msg) -> None:          # sub_cb means "callback subroutine"

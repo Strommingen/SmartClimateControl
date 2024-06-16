@@ -50,8 +50,8 @@ class MQTTClient:
                 return n
             sh += 7
 
-    def set_callback(self, f):
-        self.cb = f
+    # def set_callback(self, f):
+    #     self.cb = f
 
     def set_last_will(self, topic, msg, retain=False, qos=0):
         assert 0 <= qos <= 2
