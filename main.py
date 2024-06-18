@@ -4,7 +4,6 @@ import time
 from machine import Pin
 import keys
 
-
 def getTemperature(sensor) -> float:
     try:
         sensor.measure()
@@ -20,6 +19,18 @@ def getHumidity(sensor) -> float:
         return humidity
     except Exception as err:
         print("Something went wrong while reading humidity..", err)
+
+def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> bool:
+    if tempOut >= 17 or tempIn > 24:
+        if tempIn > tempOut:
+            return True
+        # Humidity conditions
+        if (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
+            return True
+    # If none of the conditions met, return False
+    return False
+#https://lauryheating.com/ideal-home-humidity/
+
 
 # Function used for debugging. Callback when subscribed message arrives.
 # def sub_cb(topic, msg) -> None:
@@ -37,11 +48,12 @@ print(f"Connected to {keys.AIO_SERVER}")
 
 msg=''
 nextNotice = time.mktime(time.localtime()) # current time since epoch
+actionNeeded = False
 
 led = Pin(14, Pin.OUT)
 dhtOutside = dht.DHT11(Pin(15))
 dhtInside = dht.DHT11(Pin(17))
-myWindow = window.Window(Pin(27, Pin.IN))
+windowPin = Pin(27, Pin.IN)
 
 try:
     while True:
@@ -52,31 +64,32 @@ try:
         tempIn = getTemperature(dhtInside)
         humIn = getHumidity(dhtInside)
         
+        windowIsOpen = windowPin.value()
 
-#TODO: make the window value only send when action needs to be taken
-    # check if window should be open
-        if myWindow.tempShouldOpen(tempOut, tempIn) or myWindow.humidShouldOpen(humOut, humIn):
-            # if window should be open but is not, change the message
-            if not myWindow.IsOpen():
-                msg = 'Closed'
-                print('true')
+        # if the window should open
+        if windowShouldOpen(humOut, humIn, tempOut, tempIn):
+            if not windowIsOpen:
+                actionNeeded=True
+                msg='Closed'
                 led.on()
             else:
+                led.off()
                 msg='Open'
-        # if window should not be open but is, change message
-        elif myWindow.IsOpen():
-            print('true')
-            msg='Open'
-            led.on()
+        # window should not open
         else:
-            led.off()
-            msg='Open'
-            print('false')
-
+            if windowIsOpen:
+                actionNeeded= True
+                msg ='Open'
+                led.On()
+            else:
+                led.off()
+                msg='Closed'
+            
 
         # we only send data every 45 minutes
         if nextNotice-time.mktime(time.localtime()) < 0:
-            client.publish(keys.AIO_WINDOW_FEED, msg)
+            if actionNeeded: # and only send to window feed if action is needed
+                client.publish(keys.AIO_WINDOW_FEED, msg)
             client.publish(keys.AIO_TEMPOUT_FEED, str(tempOut))
             client.publish(keys.AIO_TEMPIN_FEED, str(tempIn))
             client.publish(keys.AIO_HUMIN_FEED, str(humIn))
