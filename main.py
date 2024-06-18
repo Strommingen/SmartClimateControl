@@ -35,9 +35,10 @@ client = mqtt.MQTTClient(keys.AIO_CLIENT_ID, keys.AIO_SERVER, keys.AIO_PORT, key
 client.connect()
 print(f"Connected to {keys.AIO_SERVER}")
 
-lastSent_seconds = 2700
+msg=''
+nextNotice = time.mktime(time.localtime()) # current time since epoch
 
-
+led = Pin(14, Pin.OUT)
 dhtOutside = dht.DHT11(Pin(15))
 dhtInside = dht.DHT11(Pin(17))
 myWindow = window.Window(Pin(27, Pin.IN))
@@ -51,37 +52,42 @@ try:
         tempIn = getTemperature(dhtInside)
         humIn = getHumidity(dhtInside)
         
-    # Gets the current time and adds 45 minutes 
-        date = time.localtime()
-        nextNotice = time.mktime(date) + 2700
-#TODO: make the window value only send when action needs to be taken
 
+#TODO: make the window value only send when action needs to be taken
     # check if window should be open
         if myWindow.tempShouldOpen(tempOut, tempIn) or myWindow.humidShouldOpen(humOut, humIn):
             # if window should be open but is not, change the message
-            if not myWindow.IsOpen() and (lastSent_seconds > nextNotice):
-                client.publish(keys.AIO_WINDOW_FEED, 'Closed')
-                print('Notified!')
-
+            if not myWindow.IsOpen():
+                msg = 'Closed'
+                print('true')
+                led.on()
+            else:
+                msg='Open'
         # if window should not be open but is, change message
-        elif (myWindow.IsOpen()) and (lastSent_seconds > nextNotice):
-            client.publish(keys.AIO_WINDOW_FEED, 'Open')
-            print('Notified!')
+        elif myWindow.IsOpen():
+            print('true')
+            msg='Open'
+            led.on()
+        else:
+            led.off()
+            msg='Open'
+            print('false')
 
-        # we only send data every -- minutes
-        if lastSent_seconds > nextNotice:
+
+        # we only send data every 45 minutes
+        if nextNotice-time.mktime(time.localtime()) < 0:
+            client.publish(keys.AIO_WINDOW_FEED, msg)
             client.publish(keys.AIO_TEMPOUT_FEED, str(tempOut))
             client.publish(keys.AIO_TEMPIN_FEED, str(tempIn))
             client.publish(keys.AIO_HUMIN_FEED, str(humIn))
             client.publish(keys.AIO_HUMOUT_FEED, str(humOut))
             print('Published!')
-            lastSent = time.localtime() 
-            lastSent_seconds = time.mktime(lastSent)
+            nextNotice = time.mktime(time.localtime()) +2700
 
         print(f'Outside {tempOut} C, {humOut} %')
         print(f'Inside {tempIn} C, {humIn} %')
-        print(f'Window is open: ', myWindow.IsOpen())
-
+        print(f'Window is {msg}')
+        print(f'Time until next publish: {nextNotice-time.mktime(time.localtime())} \n')
         time.sleep(30)
 finally:
     client.disconnect()
