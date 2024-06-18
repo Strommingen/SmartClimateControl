@@ -1,6 +1,6 @@
 # Smart Climate Control System For A Window
 
-[![hackmd-github-sync-badge](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g/badge)](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g)]
+[![hackmd-github-sync-badge](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g/badge)](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g)
 
 
     Author: Gustaf Nordlander (gn222ia)
