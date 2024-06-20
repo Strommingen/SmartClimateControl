@@ -19,13 +19,14 @@ def getHumidity(sensor) -> float:
         return humidity
     except Exception as err:
         print("Something went wrong while reading humidity..", err)
-
+# tempout 18 tempin 21
 def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> bool:
-    if (tempOut >= 17) and (tempIn >= 24) and (tempOut > tempIn):
-        return True
-        # Humidity conditions
-    if (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
-        return True
+    if (tempOut > 16) and (tempIn > 22):
+        if tempIn > tempOut:
+            return True
+            # Humidity conditions
+        if (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
+            return True
     # If none of the conditions met, return False
     return False
 #https://lauryheating.com/ideal-home-humidity/
@@ -95,14 +96,7 @@ try:
 
             print('Published!')
             nextNotice = time.mktime(time.localtime()) +1001
-        print(debug)
-
-        # print(f'Outside {tempOut} C, {humOut} %')
-        # print(f'Inside {tempIn} C, {humIn} %')
-        # print(f'Window is {windowState}')
-        # print(f'Action needed?: {actionNeeded}')
-        # print(f'Time until next publish: {nextNotice-time.mktime(time.localtime())} \n')
-
+        #print(debug)
 
         time.sleep(10)
 finally:
