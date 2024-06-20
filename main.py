@@ -21,8 +21,8 @@ def getHumidity(sensor) -> float:
         print("Something went wrong while reading humidity..", err)
 # tempout 18 tempin 21
 def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> bool:
-    if (tempOut > 16) and (tempIn > 22):
-        if tempIn > tempOut:
+    if (tempOut > 16):
+        if (tempIn - tempOut >= 5) and not (tempOut > 22): # if it is atleast 3 degrees warmer inside and outside is not above 22 return true
             return True
             # Humidity conditions
         if (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
@@ -72,6 +72,8 @@ try:
 
         shouldOpen = windowShouldOpen(humOut, humIn, tempOut, tempIn)
 
+
+# TODO: here it is black and white if notify or not, but it should not be should be a grey area if tempout > 16 and tempin < 22 it should not matter
         if (shouldOpen and windowState == 'Closed') or (not shouldOpen and windowState == 'Open'):
             actionNeeded=True
             led.on()
@@ -95,7 +97,7 @@ try:
             client.publish(keys.AIO_DEBUG_FEED, str(debug))
 
             print('Published!')
-            nextNotice = time.mktime(time.localtime()) +1001
+            nextNotice = time.mktime(time.localtime()) + 2700
         #print(debug)
 
         time.sleep(10)
