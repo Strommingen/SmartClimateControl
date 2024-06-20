@@ -46,15 +46,16 @@ client.connect()
 print(f"Connected to {keys.AIO_SERVER}")
 
 nextNotice = time.mktime(time.localtime()) # current time since epoch
-actionNeeded = False
 
 led = Pin(14, Pin.OUT)
 dhtOutside = dht.DHT11(Pin(15))
 dhtInside = dht.DHT11(Pin(17))
 windowPin = Pin(27, Pin.IN)
+actionNeeded=False
 
 try:
     while True:
+
         # get all sensor values
         tempOut = getTemperature(dhtOutside)
         humOut = getHumidity(dhtOutside)
@@ -68,17 +69,19 @@ try:
         else:
             windowState = 'Closed'
 
-        windowOpenDesired = windowShouldOpen(humOut, humIn, tempOut, tempIn)
+        shouldOpen = windowShouldOpen(humOut, humIn, tempOut, tempIn)
 
-        if windowOpenDesired and windowState == 'Closed':
+        if (shouldOpen and windowState == 'Closed') or (not shouldOpen and windowState == 'Open'):
             actionNeeded=True
-            led.on()
-        elif not windowOpenDesired and windowState == 'Open':
-            actionNeeded = True
             led.on()
         else:
             actionNeeded=False
             led.off()
+
+
+        debug=f"Outside {tempOut} C, {humOut} %\nInside {tempIn} C, {humIn} % \nWindow is {windowState}\n\nAction needed?: {actionNeeded} \n\n\n"
+        
+
 
         # we only send data every 45 minutes
         if nextNotice-time.mktime(time.localtime()) < 0:
@@ -88,13 +91,19 @@ try:
             client.publish(keys.AIO_TEMPIN_FEED, str(tempIn))
             client.publish(keys.AIO_HUMIN_FEED, str(humIn))
             client.publish(keys.AIO_HUMOUT_FEED, str(humOut))
-            print('Published!')
-            nextNotice = time.mktime(time.localtime()) +900
+            client.publish(keys.AIO_DEBUG_FEED, str(debug))
 
-        print(f'Outside {tempOut} C, {humOut} %')
-        print(f'Inside {tempIn} C, {humIn} %')
-        print(f'Window is {windowState}')
-        print(f'Time until next publish: {nextNotice-time.mktime(time.localtime())} \n')
+            print('Published!')
+            nextNotice = time.mktime(time.localtime()) +1001
+        print(debug)
+
+        # print(f'Outside {tempOut} C, {humOut} %')
+        # print(f'Inside {tempIn} C, {humIn} %')
+        # print(f'Window is {windowState}')
+        # print(f'Action needed?: {actionNeeded}')
+        # print(f'Time until next publish: {nextNotice-time.mktime(time.localtime())} \n')
+
+
         time.sleep(10)
 finally:
     client.disconnect()
