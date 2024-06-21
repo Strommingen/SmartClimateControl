@@ -1,8 +1,14 @@
-from lib import window, mqtt, wifiConnection
+from lib import mqtt
+import network
 import dht
 import time
 from machine import Pin
 import keys
+
+def disconnect():
+    wlan = network.WLAN(network.STA_IF)         # Put modem on Station mode
+    wlan.disconnect()
+    wlan = None
 
 def getTemperature(sensor) -> float:
     try:
@@ -19,27 +25,39 @@ def getHumidity(sensor) -> float:
         return humidity
     except Exception as err:
         print("Something went wrong while reading humidity..", err)
-# tempout 18 tempin 21
-def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> bool:
-    if (tempOut > 16):
-        if (tempIn - tempOut >= 5) and not (tempOut > 22): # if it is atleast 3 degrees warmer inside and outside is not above 22 return true
-            return True
-            # Humidity conditions
-        if (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
-            return True
-    # If none of the conditions met, return False
-    return False
+# returns 1 if window should open, -1 if it should close, 0 if it does not matter
+# def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
+#     if (tempOut > 16):
+#         # if it is atleast 3 degrees warmer inside and outside is not above 22 return true
+#         if ((tempIn - tempOut >= 5) and not (tempOut > 22)) or (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
+#             return 1
+#             # Humidity conditions
+#         if tempIn - tempOut <5:
+#             return 0
+#     # If none of the conditions met, return False
+#     return -1
+
+def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
+    # Check if the outside temperature is above 16 degrees
+    if tempOut > 16:
+        # If it's at least 5 degrees warmer inside than outside and outside is not above 22 degrees
+        if (tempIn - tempOut >= 5 and tempOut <= 22):
+            return 1
+        # If outside humidity is greater than inside and inside humidity is less than 40%
+        if humOut > humIn and humIn < 0.4:
+            return 1
+        # If outside humidity is less than inside and inside humidity is greater than 50%
+        if humOut < humIn and humIn > 0.5:
+            return 1
+        # If the temperature difference is less than 5 degrees
+        if tempIn - tempOut < 5:
+            return 0
+    # If none of the conditions are met, the window should remain closed
+    return -1
+
 #https://lauryheating.com/ideal-home-humidity/
 
 
-# Function used for debugging. Callback when subscribed message arrives.
-# def sub_cb(topic, msg) -> None:
-#     print((topic, msg))
-
-try:
-    ip = wifiConnection.connect()
-except KeyboardInterrupt:
-    print("Keyboard interrupt")
 
 client = mqtt.MQTTClient(keys.AIO_CLIENT_ID, keys.AIO_SERVER, keys.AIO_PORT, keys.AIO_USER, keys.AIO_KEY)
 #client.set_callback(sub_cb)
@@ -74,7 +92,7 @@ try:
 
 
 # TODO: here it is black and white if notify or not, but it should not be should be a grey area if tempout > 16 and tempin < 22 it should not matter
-        if (shouldOpen and windowState == 'Closed') or (not shouldOpen and windowState == 'Open'):
+        if (shouldOpen == 1 and windowState == 'Closed') or (shouldOpen == -1 and windowState == 'Open'):
             actionNeeded=True
             led.on()
         else:
@@ -104,5 +122,5 @@ try:
 finally:
     client.disconnect()
     client = None
-    wifiConnection.disconnect()
+    disconnect()
     print("Disconnected from Adafruit IO")

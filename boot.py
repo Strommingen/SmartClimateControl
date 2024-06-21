@@ -20,7 +20,7 @@ def connect():
     print('\nConnected on {}'.format(ip))
     return ip
 
-def disconnect():
-    wlan = network.WLAN(network.STA_IF)         # Put modem on Station mode
-    wlan.disconnect()
-    wlan = None
+try:
+    ip = connect()
+except KeyboardInterrupt:
+    print("Keyboard interrupt")
