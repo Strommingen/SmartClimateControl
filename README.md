@@ -56,7 +56,8 @@ With Pymakr installed you can now update the microcontroller live by enabling de
 
 ## Putting everything together
 Using the breadboard we connect all our sensors to the Pico WH. Make sure the microcontroller is not plugged in to any power source during this step. Be advised to follow the image below when putting everything together, if other pins are used, be sure to update the code. 
-![fritzing_board](../images/fritzing_board.png)
+<img src="https://github.com/Strommingen/SmartClimateControl/blob/main/images/dashboard.png"
+     alt="Visual representation of breadboard setup" />
 The red wiring indicates power wiring, blue indicates ground wiring and yellow is the data wiring.
 
 ## Platform
