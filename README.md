@@ -69,6 +69,27 @@ While Adafruit is a great platform I want to add that if I had a little more tim
 All code is written in micropython. The libraries used are listed :
 * 
 
+For the program to work a file must be added named keys.py in the root folder. And use this template to populate the file, adding the correct values.
+```
+import machine
+import ubinascii
+
+WIFI_SSID = '' # WIFI SSID
+WIFI_PASS = '' # WIFI PASSWORD
+
+AIO_SERVER = "" # ADAFRUIT IO SERVER
+AIO_PORT = #PORT USED
+AIO_USER = "" # ADAFRUIT USERNAME
+AIO_KEY = "" # ADAFRUIT KEY
+AIO_TEMPOUT_FEED = "" # ADAFRUIT TEMPERATURE OUTSIDE FEED
+AIO_TEMPIN_FEED ="" # ADAFRUIT TEMPERATURE INSIDE FEED
+AIO_HUMOUT_FEED = "" # ADAFRUIT HUMIDITY OUTSIDE FEED
+AIO_HUMIN_FEED = "" # ADAFRUIT HUMIDITY INSIDE FEED
+AIO_WINDOW_FEED="" # ADAFRUIT WINDOW FEED
+AIO_DEBUG_FEED="" # ADAFRUIT DEBUG FEED
+AIO_CLIENT_ID = ubinascii.hexlify(machine.unique_id()) # CLIENT ID
+```
+
 The function that controls if a window should open or not takes into account the humidity and temperature inside and outside.
 
 ```
