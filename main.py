@@ -25,17 +25,7 @@ def getHumidity(sensor) -> float:
         return humidity
     except Exception as err:
         print("Something went wrong while reading humidity..", err)
-# returns 1 if window should open, -1 if it should close, 0 if it does not matter
-# def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
-#     if (tempOut > 16):
-#         # if it is atleast 3 degrees warmer inside and outside is not above 22 return true
-#         if ((tempIn - tempOut >= 5) and not (tempOut > 22)) or (humOut > humIn and humIn < 0.4) or (humOut < humIn and humIn > 0.5):
-#             return 1
-#             # Humidity conditions
-#         if tempIn - tempOut <5:
-#             return 0
-#     # If none of the conditions met, return False
-#     return -1
+
 
 def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
     # Check if the outside temperature is above 16 degrees
@@ -55,20 +45,18 @@ def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
     # If none of the conditions are met, the window should remain closed
     return -1
 
-#https://lauryheating.com/ideal-home-humidity/
-
-
 
 client = mqtt.MQTTClient(keys.AIO_CLIENT_ID, keys.AIO_SERVER, keys.AIO_PORT, keys.AIO_USER, keys.AIO_KEY)
 #client.set_callback(sub_cb)
 client.connect()
 print(f"Connected to {keys.AIO_SERVER}")
 
-nextNotice = time.mktime(time.localtime()) # current time since epoch
+nextNoticeAction = time.mktime(time.localtime()) # current time since epoch
+nextNotice = time.mktime(time.localtime())
 
-led = Pin(14, Pin.OUT)
-dhtOutside = dht.DHT11(Pin(15))
-dhtInside = dht.DHT11(Pin(17))
+led = Pin(15, Pin.OUT)
+dhtOutside = dht.DHT11(Pin(17))
+dhtInside = dht.DHT11(Pin(14))
 windowPin = Pin(27, Pin.IN)
 actionNeeded=False
 
@@ -91,7 +79,6 @@ try:
         shouldOpen = windowShouldOpen(humOut, humIn, tempOut, tempIn)
 
 
-# TODO: here it is black and white if notify or not, but it should not be should be a grey area if tempout > 16 and tempin < 22 it should not matter
         if (shouldOpen == 1 and windowState == 'Closed') or (shouldOpen == -1 and windowState == 'Open'):
             actionNeeded=True
             led.on()
@@ -104,10 +91,15 @@ try:
         
 
 
-        # we only send data every 45 minutes
-        if nextNotice-time.mktime(time.localtime()) < 0:
+        # we only send this data every 45 minutes
+        if nextNoticeAction - time.mktime(time.localtime()) <= 0:
             if actionNeeded: # and only send to window feed if action is needed
                 client.publish(keys.AIO_WINDOW_FEED, windowState)
+
+                nextNoticeAction = time.mktime(time.localtime()) + 2700
+
+        #we send this data every 5 minutes
+        if nextNotice - time.mktime(time.localtime()) <= 0:
             client.publish(keys.AIO_TEMPOUT_FEED, str(tempOut))
             client.publish(keys.AIO_TEMPIN_FEED, str(tempIn))
             client.publish(keys.AIO_HUMIN_FEED, str(humIn))
@@ -115,7 +107,7 @@ try:
             client.publish(keys.AIO_DEBUG_FEED, str(debug))
 
             print('Published!')
-            nextNotice = time.mktime(time.localtime()) + 2700
+            nextNotice = time.mktime(time.localtime()) + 300
         #print(debug)
 
         time.sleep(10)
