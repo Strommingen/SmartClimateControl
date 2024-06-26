@@ -57,7 +57,7 @@ With Pymakr installed you can now update the microcontroller live by enabling de
 ## Putting everything together
 Using the breadboard we connect all our sensors to the Pico WH. Make sure the microcontroller is not plugged in to any power source during this step. Be advised to follow the image below when putting everything together, if other pins are used, be sure to update the code. 
 
-![fritzing_board](https://hackmd.io/_uploads/B1H4Njt8R.png)
+![fritzing_board](https://hackmd.io/_uploads/B1H4Njt8R.png?raw=True)
 
 The red wiring indicates power wiring, blue indicates ground wiring and yellow is the data wiring.
 
