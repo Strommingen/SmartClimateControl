@@ -1,6 +1,5 @@
 # Smart Climate Control System For A Window
 
-[![hackmd-github-sync-badge](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g/badge)](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g)
 
 Project for the course Introduction to Applied Internet of Things. Linneus University 2024.
 
