@@ -2,6 +2,7 @@
 
 [![hackmd-github-sync-badge](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g/badge)](https://hackmd.io/ZVxbMHrCR8-jHQ3t1b0l-g)
 
+Project for the course Introduction to Applied Internet of Things. Linneus University 2024.
 
     Author: Gustaf Nordlander (gn222ia)
 **Overview:** This tutorial will show you how to make a smart climate control system in the form of a system that measures values outdoors and indoors. The system notifies that an action needs to be taken, the window it is attached to needs to close or open to effectivly regulate the climate indoors.
@@ -9,7 +10,7 @@
 Please note that the tutorial is based on having Windows as the operating system.
 
 
-Expect around - hours
+Expect around 7 hours to complete.
 
 ## Objective
 During the summer it can be difficult regulating temperature inside your home. Energy consumtion can increase with the use of fans or AC's. A simple way to help lower the use of these potentially powerhungry electronics is to open your window when it is colder outside and close it when it is hotter. For some, meaning me, it can be difficult to remember to do this and to make a habit  of it. 
@@ -34,6 +35,12 @@ The components used in this project was bought from [Electrokit.com](https://www
 
 The Pico WH microcontroller used is a good starting point for a IoT project if you have no prior experience with building an IoT device in my opinion. It has wifi capabilities so many simple projects that you might want to make in your apartment are possible.
 
+The DHT11 sensors are used to measure the temperature/humidity inside and outside respectively. 
+
+The Digital Hall Sensor is used in combination with the magnet to determine if the window is closed or open.
+
+The red LED is used for a visual cue that an action needs to be taken, meaning to open or close the window. And the resistor is used with this component.
+
 
 
 ## Computer Setup
@@ -57,7 +64,7 @@ With Pymakr installed you can now update the microcontroller live by enabling de
 ## Putting everything together
 Using the breadboard we connect all our sensors to the Pico WH. Make sure the microcontroller is not plugged in to any power source during this step. Be advised to follow the image below when putting everything together, if other pins are used, be sure to update the code. 
 
-![fritzing_board](https://hackmd.io/_uploads/B1H4Njt8R.png?raw=True)
+![fritzing_board](https://hackmd.io/_uploads/B1H4Njt8R.png)
 
 The red wiring indicates power wiring, blue indicates ground wiring and yellow is the data wiring.
 
@@ -67,8 +74,6 @@ The red wiring indicates power wiring, blue indicates ground wiring and yellow i
 While Adafruit is a great platform I want to add that if I had a little more time I would have been going the TIG stack route. The limited feeds and 30 messages were not an issue for my project but the Actions section was. It was a bit limiting since you cannot make that complex decicions. Also the 30 day limit to storage is limiting so if you intend to use the data for anything like machine learning or just statistics I would not recommend this platform.
 
 ## Code
-All code is written in micropython. The libraries used in main.py are listed :
-* 
 
 For the program to work a file must be added named keys.py in the root folder. And use this template to populate the file, adding the correct values.
 ```
@@ -95,8 +100,8 @@ The function that controls if a window should open or not takes into account the
 
 ```
 def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
-    # Check if the outside temperature is above 16 degrees
-    if tempOut > 16:
+    # Check if the outside temperature is above 16 degrees or below 26
+    if tempOut > 16 and tempOut < 26:
         # If it's at least 5 degrees warmer inside than outside and outside is not above 22 degrees
         if (tempIn - tempOut >= 5 and tempOut <= 22):
             return 1
@@ -140,7 +145,7 @@ We then determine if an action is needed or not and with that we also turn on/of
 
 
 ## Transmitting the data/connectivity
-There are two different time frames for publishing the data. Every 45 minutes for the window feed where we send the current state of the window, if an action is needed. And every 5 minutes for all other feeds.
+There are two different time frames for publishing the data. Every 45 minutes for the window feed where we send the current state of the window, if an action is needed. And every 5 minutes for all other feeds. Reason for this is I don't want to be spammed in discord to close the window.
 ```
         # we only send this data every 45 minutes
         if nextNoticeAction - time.mktime(time.localtime()) <= 0:
@@ -187,6 +192,7 @@ I wanted the to group the humidity values and temperature values respectivly.
 
 
 This way you can compare the values easier. The window state block is updated with the window feed that is used to trigger an action. The debug block functions like a summary for all data, this helped me to modify the decision in the code when an action is needed or not. It is also used as an alternative to the graphs. The gauge block also functions as an alternative to the graphs but only displays the most relative data for this project, the temperature indoors that we want to regulate. We also want to regulate humidity, however this is a secondary focus.
+
 
 ## Finalizing the design
 The project went well and was fun to implement. As stated I would like to implement the TIG stack in place of Adafruit IO and with that make adjustments to the code, abstracting decision making of sending the webhook message to an external recource. 
