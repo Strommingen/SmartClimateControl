@@ -56,8 +56,9 @@ With Pymakr installed you can now update the microcontroller live by enabling de
 
 ## Putting everything together
 Using the breadboard we connect all our sensors to the Pico WH. Make sure the microcontroller is not plugged in to any power source during this step. Be advised to follow the image below when putting everything together, if other pins are used, be sure to update the code. 
-<img src="https://github.com/Strommingen/SmartClimateControl/blob/main/images/fritzing_board.png"
-     alt="Visual representation of breadboard setup" />
+
+![fritzing_board](https://hackmd.io/_uploads/B1H4Njt8R.png?raw=True)
+
 The red wiring indicates power wiring, blue indicates ground wiring and yellow is the data wiring.
 
 ## Platform
@@ -172,16 +173,19 @@ As previously mentioned I utilized the actions in Adafruit IO send messages to d
 }
 ```
 The messages looks like this.
-<img src="https://github.com/Strommingen/SmartClimateControl/blob/main/images/discord_message.png" 
-    alt= Screenshot of discord messages>
+![discord message](https://hackmd.io/_uploads/H148NiYIR.png)
+
+
 
 
 ## Presenting the data
 Making a dashboard in Adafruit IO is very simple. You simply choose a feed and in what way you want to display the data.
 
 I wanted the to group the humidity values and temperature values respectivly.
-<img src="https://github.com/Strommingen/SmartClimateControl/blob/main/images/dashboard.png"
-     alt="Screenshot of Adafruit dashboard" />
+![dashboard](https://hackmd.io/_uploads/H1cSEjY8R.png)
+
+
+
 This way you can compare the values easier. The window state block is updated with the window feed that is used to trigger an action. The debug block functions like a summary for all data, this helped me to modify the decision in the code when an action is needed or not. It is also used as an alternative to the graphs. The gauge block also functions as an alternative to the graphs but only displays the most relative data for this project, the temperature indoors that we want to regulate. We also want to regulate humidity, however this is a secondary focus.
 
 ## Finalizing the design
