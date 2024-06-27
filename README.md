@@ -1,7 +1,7 @@
 # Smart Climate Control System For A Window
 
 
-Project for the course Introduction to Applied Internet of Things. Linneus University 2024.
+*Project for the course Introduction to Applied Internet of Things. Linneus University 2024.*
 
     Author: Gustaf Nordlander (gn222ia)
 **Overview:** This tutorial will show you how to make a smart climate control system in the form of a system that measures values outdoors and indoors. The system notifies that an action needs to be taken, the window it is attached to needs to close or open to effectivly regulate the climate indoors in two ways, a visual cue and a message on discord.
