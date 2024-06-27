@@ -66,7 +66,7 @@ The red wiring indicates power wiring, blue indicates ground wiring and yellow i
 While Adafruit is a great platform I want to add that if I had a little more time I would have been going the TIG stack route. The limited feeds and 30 messages were not an issue for my project but the Actions section was. It was a bit limiting since you cannot make that complex decicions. Also the 30 day limit to storage is limiting so if you intend to use the data for anything like machine learning or just statistics I would not recommend this platform.
 
 ## Code
-All code is written in micropython. The libraries used are listed :
+All code is written in micropython. The libraries used in main.py are listed :
 * 
 
 For the program to work a file must be added named keys.py in the root folder. And use this template to populate the file, adding the correct values.

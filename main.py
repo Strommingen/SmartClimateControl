@@ -1,74 +1,39 @@
 from lib import mqtt
-import network
-import dht
+import lib.enviorment_util as env
 import time
+import dht
 from machine import Pin
 import keys
 
-def disconnect():
-    wlan = network.WLAN(network.STA_IF)         # Put modem on Station mode
-    wlan.disconnect()
-    wlan = None
-
-def getTemperature(sensor) -> float:
-    try:
-        sensor.measure()
-        temperature = sensor.temperature()
-        return temperature
-    except Exception as err:
-        print("Something went wrong while reading temperature..", err)
-
-def getHumidity(sensor) -> float:
-    try:
-        sensor.measure()
-        humidity = sensor.humidity()
-        return humidity
-    except Exception as err:
-        print("Something went wrong while reading humidity..", err)
-
-
-def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
-    # Check if the outside temperature is above 16 degrees
-    if tempOut > 16:
-        # If it's at least 5 degrees warmer inside than outside and outside is not above 22 degrees
-        if (tempIn - tempOut >= 5 and tempOut <= 22):
-            return 1
-        # If outside humidity is greater than inside and inside humidity is less than 40%
-        if humOut > humIn and humIn < 0.4:
-            return 1
-        # If outside humidity is less than inside and inside humidity is greater than 50%
-        if humOut < humIn and humIn > 0.5:
-            return 1
-        # If the temperature difference is less than 5 degrees
-        if tempIn - tempOut < 5:
-            return 0
-    # If none of the conditions are met, the window should remain closed
-    return -1
-
+try:
+    ip = env.connect()
+except KeyboardInterrupt:
+    print("Keyboard interrupt")
 
 client = mqtt.MQTTClient(keys.AIO_CLIENT_ID, keys.AIO_SERVER, keys.AIO_PORT, keys.AIO_USER, keys.AIO_KEY)
-#client.set_callback(sub_cb)
 client.connect()
 print(f"Connected to {keys.AIO_SERVER}")
 
 nextNoticeAction = time.mktime(time.localtime()) # current time since epoch
 nextNotice = time.mktime(time.localtime())
 
+# set up pins
 led = Pin(15, Pin.OUT)
 dhtOutside = dht.DHT11(Pin(17))
 dhtInside = dht.DHT11(Pin(14))
 windowPin = Pin(27, Pin.IN)
+
 actionNeeded=False
 
 try:
     while True:
 
         # get all sensor values
-        tempOut = getTemperature(dhtOutside)
-        humOut = getHumidity(dhtOutside)
+        tempOut = env.getTemperature(dhtOutside)
+        humOut = env.getHumidity(dhtOutside)
 
-        tempIn = getTemperature(dhtInside)
-        humIn = getHumidity(dhtInside)
+        tempIn = env.getTemperature(dhtInside)
+        humIn = env.getHumidity(dhtInside)
         
         windowState=''
         if windowPin.value():
@@ -76,7 +41,7 @@ try:
         else:
             windowState = 'Closed'
 
-        shouldOpen = windowShouldOpen(humOut, humIn, tempOut, tempIn)
+        shouldOpen = env.windowShouldOpen(humOut, humIn, tempOut, tempIn)
 
 
         if (shouldOpen == 1 and windowState == 'Closed') or (shouldOpen == -1 and windowState == 'Open'):
@@ -114,5 +79,5 @@ try:
 finally:
     client.disconnect()
     client = None
-    disconnect()
+    env.disconnect()
     print("Disconnected from Adafruit IO")
