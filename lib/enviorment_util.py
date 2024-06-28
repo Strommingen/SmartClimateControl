@@ -44,7 +44,7 @@ def getHumidity(sensor) -> float:
 
 
 def windowShouldOpen(humOut, humIn, tempOut, tempIn) -> int:
-    # Check if the outside temperature is above 16 degrees
+    # Check if the outside temperature is above 16 degrees or below 26
     if tempOut > 16 and tempOut < 26:
         # If it's at least 5 degrees warmer inside than outside and outside is not above 22 degrees
         if (tempIn - tempOut >= 5 and tempOut <= 22):
