@@ -197,3 +197,12 @@ The project went well and was fun to implement. As stated I would like to implem
 The biggest hurdle of this project was to implement the logic of whether the window should be open or not, this was the subject of many git commits, however now I think it is good. More logic can also be implemented like when humidity is at a certain point in comparison to the temperature but I wanted to focus more on the temperature.
 
 A fully automated solution could also be implemented, using some kind of actuator to physically open/close the window in place of the webhook telling me to do it. The logic is essentially there already, it would just require hooking up this actuator and adding the trigger to activate it in the same if statement where the data is published.
+
+![box](https://hackmd.io/_uploads/HkO7yGgPA.jpg)
+I made a small wooden box for the dht11 that is outside to protect it from the wheater. It is also loosely wrapped with plastic to protect it further while hopefully not altering the data it measures.
+
+![final_prototype](https://hackmd.io/_uploads/S1WmQzxPC.jpg)
+
+I power the project with a powerbank. And used tape to attach components to the wall.
+
+[Short demonstration of the functionality in action.](https://youtu.be/pzgLBzud83g)
